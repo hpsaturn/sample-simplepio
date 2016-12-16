@@ -4,3 +4,6 @@
 [submodule "xc3sprog"]
 	path = xc3sprog
 	url = https://github.com/matrix-io/xc3sprog.git
+[submodule "matrix-creator-hal"]
+	path = matrix-creator-hal
+	url = git@github.com:matrix-io/matrix-creator-hal.git
