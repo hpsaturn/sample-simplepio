@@ -26,7 +26,12 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import static android.R.attr.data;
 
 /**
  * Sample usage of the Gpio API that blinks an LED at a fixed interval defined in
@@ -88,6 +93,7 @@ public class WishboneActivity extends Activity {
             e.printStackTrace();
         }
     }
+
 
     @Override
     protected void onDestroy() {
