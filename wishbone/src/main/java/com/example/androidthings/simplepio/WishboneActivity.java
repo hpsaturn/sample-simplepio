@@ -54,7 +54,7 @@ public class WishboneActivity extends Activity {
     private SpiDevice mDevice;
 
     private Wishbone wb;
-    private byte[] data = new byte[4];
+    private byte[] data = new byte[8];
 
 
     @Override
@@ -146,9 +146,9 @@ public class WishboneActivity extends Activity {
                 // Reschedule the same runnable in {#INTERVAL_BETWEEN_BLINKS_MS} milliseconds
                 mHandler.postDelayed(mBlinkRunnable, INTERVAL_BETWEEN_BLINKS_MS);
 
-                wb.SpiRead((short) (0x3800+(0x00 >> 1)),data,4);
+                wb.SpiRead((short) (0x3800+(0x90 >> 1)),data,8);
                 if(DEBUG)Log.d(TAG,"UVData  :"+Arrays.toString(data));
-                if(DEBUG)Log.d(TAG,"UVSensor:"+ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+//                if(DEBUG)Log.d(TAG,"UVSensor:"+ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat());
 
             } catch (IOException e) {
                 Log.e(TAG, "Error on PeripheralIO API", e);
