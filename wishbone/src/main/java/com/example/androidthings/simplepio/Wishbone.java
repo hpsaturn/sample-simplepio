@@ -92,19 +92,20 @@ public class Wishbone {
 
     public Boolean SpiRead(short add, byte[] data, int length) {
         for (short w = 0; w < (length / 2); w++) {
-            if (!SpiRead16((short)(add + w),data)) return false;
+            if(DEBUG) Log.d(TAG,"spiRead word:"+w);
+            if (!SpiRead16((short)(add + w),data, w)) return false;
         }
         return true;
     }
 
-    public Boolean SpiRead16(short add, byte[] data) {
+    public Boolean SpiRead16(short add, byte[] data, int inc) {
         _mutex.lock();
         try {
             int length = 2;
             tx_buffer_[0] = RD0(add);
             tx_buffer_[1] = RD1(add, (short) 0);
             spiTransfer(spiDevice,tx_buffer_,rx_buffer_,length+2);
-            System.arraycopy(rx_buffer_,2,data,0,length);
+            System.arraycopy(rx_buffer_,2,data,inc*2,length);
 //            if(DEBUG) Log.d(TAG,"spiTransfer transmit:"+ Arrays.toString(tx_buffer_));
 //            if(DEBUG) Log.d(TAG,"spiTransfer response:"+ Arrays.toString(rx_buffer_));
 //            memcpy(data, &rx_buffer_[2], length);
