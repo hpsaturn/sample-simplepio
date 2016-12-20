@@ -26,6 +26,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -43,11 +45,16 @@ import static android.R.attr.data;
  */
 public class WishboneActivity extends Activity {
     private static final String TAG = WishboneActivity.class.getSimpleName();
+    private static final boolean DEBUG = Config.DEBUG;
+
     private static final int INTERVAL_BETWEEN_BLINKS_MS = 1000;
 
     private Handler mHandler = new Handler();
     private Gpio mLedGpio;
     private SpiDevice mDevice;
+
+    private Wishbone wb;
+    private byte[] data = new byte[4];
 
 
     @Override
@@ -57,6 +64,8 @@ public class WishboneActivity extends Activity {
         PeripheralManagerService service = new PeripheralManagerService();
         configSPI(service);
         configGPIO(service);
+
+
     }
 
     private void configGPIO(PeripheralManagerService service){
@@ -84,11 +93,14 @@ public class WishboneActivity extends Activity {
             }
             mDevice = service.openSpiDevice(BoardDefaults.getSpiBus());
             // Low clock, leading edge transfer
-            mDevice.setMode(SpiDevice.MODE0);
+            mDevice.setMode(SpiDevice.MODE3);
 
             mDevice.setFrequency(18000000);     // 18MHz
             mDevice.setBitsPerWord(8);          // 8 BPW
             mDevice.setBitJustification(false); // MSB first
+
+            wb=new Wishbone(mDevice);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -123,7 +135,7 @@ public class WishboneActivity extends Activity {
         @Override
         public void run() {
             // Exit Runnable if the GPIO is already closed
-            if (mLedGpio == null) {
+            if (mLedGpio == null || wb == null) {
                 return;
             }
             try {
@@ -133,6 +145,11 @@ public class WishboneActivity extends Activity {
 
                 // Reschedule the same runnable in {#INTERVAL_BETWEEN_BLINKS_MS} milliseconds
                 mHandler.postDelayed(mBlinkRunnable, INTERVAL_BETWEEN_BLINKS_MS);
+
+                wb.SpiRead((short) (0x3800+(0x00 >> 1)),data,4);
+                if(DEBUG)Log.d(TAG,"UVData  :"+Arrays.toString(data));
+                if(DEBUG)Log.d(TAG,"UVSensor:"+ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat());
+
             } catch (IOException e) {
                 Log.e(TAG, "Error on PeripheralIO API", e);
             }
